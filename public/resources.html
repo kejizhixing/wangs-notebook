@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源分享 - Wang's Notebook</title>
+    <meta name="description" content="精选开发工具、学习资料、设计资源">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Noto+Serif+SC:wght{600;700}&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Wang's<span>.</span>Notebook</a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="posts.html">文章</a></li>
+                <li><a href="resources.html" class="active">资源</a></li>
+                <li><a href="about.html">关于</a></li>
+            </ul>
+            <div style="display:flex;align-items:center;gap:1rem">
+                <button class="theme-toggle" id="theme-toggle" aria-label="切换主题"></button>
+                <div class="nav-user" id="nav-user"></div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section style="padding-top:calc(var(--nav-height) + 3rem);padding-bottom:2rem;text-align:center">
+        <div class="container">
+            <h1 style="font-size:clamp(2rem,5vw,3rem);margin-bottom:0.5rem">资源分享</h1>
+            <p style="color:var(--text-tertiary)">精选工具 · 学习资料 · 源码模板</p>
+        </div>
+    </section>
+
+    <!-- Intro -->
+    <section style="padding-bottom:2rem">
+        <div class="container" style="text-align:center;max-width:600px">
+            <p style="color:var(--text-secondary);line-height:1.8">
+                这里整理了我日常使用和收集的各种资源，包括开发工具、学习资料、设计素材等。<br>
+                所有资源均来自网络，仅供学习交流使用。如果对你有帮助，欢迎分享给更多人。
+            </p>
+        </div>
+    </section>
+
+    <!-- Resources Grid -->
+    <section class="section-sm" style="padding-top:0">
+        <div class="container-wide">
+            <div class="resources-grid" id="resources-grid">
+                <div class="loading" style="grid-column:1/-1"><div class="loading-spinner"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Note -->
+    <section style="padding-bottom:3rem">
+        <div class="container" style="text-align:center">
+            <div style="display:inline-block;padding:1.5rem 2rem;background:var(--bg-tertiary);border-radius:12px;color:var(--text-secondary);font-size:0.9rem;max-width:500px">
+                <p style="margin-bottom:0.5rem">💡 <strong>温馨提示</strong></p>
+                <p style="margin:0;font-size:0.85rem;line-height:1.7">
+                    资源链接可能会失效，如果遇到无法访问的情况，欢迎在相关文章下评论告知。<br>
+                    资源不定期更新，建议收藏本页以便后续查看。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="posts.html">文章</a>
+                <a href="resources.html">资源</a>
+                <a href="about.html">关于</a>
+            </div>
+            <p>© 2026 Wang's Notebook. Made with ❤️ and Cloudflare.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Resource category icons
+        const categoryIcons = {
+            '开发工具': '⚡',
+            '学习资料': '📚',
+            '源码': '💻',
+            '设计资源': '🎨',
+            'default': '📦'
+        };
+
+        async function loadResources() {
+            const container = document.getElementById('resources-grid');
+
+            try {
+                const { data } = await apiRequest('/resources');
+                const resources = data.resources || [];
+
+                if (resources.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-tertiary)">
+                            <div style="font-size:3rem;margin-bottom:1rem">📦</div>
+                            <p>暂无资源，敬请期待</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = resources.map(resource => {
+                    const icon = categoryIcons[resource.category] || categoryIcons['default'];
+                    return `
+                        <div class="resource-card">
+                            <div class="resource-icon">${icon}</div>
+                            <h3 class="resource-title">${escapeHtml(resource.title)}</h3>
+                            <p class="resource-desc">${escapeHtml(resource.description || '')}</p>
+                            <div class="resource-meta">
+                                <span>${escapeHtml(resource.category || '未分类')} · ${escapeHtml(resource.file_size || '--')}</span>
+                            </div>
+                            <div style="margin-top:1rem;display:flex;justify-content:space-between;align-items:center">
+                                ${resource.password ? `<span class="resource-password">提取码: ${escapeHtml(resource.password)}</span>` : '<span></span>'}
+                                <a href="${escapeHtml(resource.url)}" target="_blank" rel="noopener" class="resource-link">
+                                    前往下载
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) {
+                console.error('Failed to load resources:', e);
+                container.innerHTML = `
+                    <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-tertiary)">
+                        <p>加载失败，请刷新重试</p>
+                        <p style="font-size:0.85rem;margin-top:0.5rem">（本地预览时需配合 API 服务）</p>
+                    </div>
+                `;
+            }
+        }
+
+        loadResources();
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wang's Notebook - 技术与生活的思考笔记</title>
+    <meta name="description" content="一个关于技术、AI 与生活思考的个人博客">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Wang's<span>.</span>Notebook</a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="active">首页</a></li>
+                <li><a href="posts.html">文章</a></li>
+                <li><a href="resources.html">资源</a></li>
+                <li><a href="about.html">关于</a></li>
+            </ul>
+            <div style="display:flex;align-items:center;gap:1rem">
+                <button class="theme-toggle" id="theme-toggle" aria-label="切换主题"></button>
+                <div class="nav-user" id="nav-user"></div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <span class="hero-badge">✨ 欢迎来到我的数字花园</span>
+            <h1 class="hero-title">记录思考<br>分享成长</h1>
+            <p class="hero-subtitle">
+                在这里，我写下关于技术、AI 与生活的思考。<br>
+                每一篇笔记，都是与世界对话的方式。
+            </p>
+            <div class="hero-cta">
+                <a href="posts.html" class="btn btn-primary">
+                    阅读文章
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="about.html" class="btn btn-secondary">关于我</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Posts -->
+    <section class="section-sm">
+        <div class="container">
+            <div class="section-header">
+                <h2>最新文章</h2>
+                <p>记录技术探索与生活感悟</p>
+            </div>
+            <div class="posts-grid" id="featured-posts">
+                <div class="loading"><div class="loading-spinner"></div></div>
+            </div>
+            <div style="text-align:center;margin-top:2rem">
+                <a href="posts.html" class="btn btn-secondary">查看全部文章 →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Preview -->
+    <section class="section-sm" style="background:var(--bg-tertiary)">
+        <div class="container-wide">
+            <div class="section-header">
+                <h2>内容分类</h2>
+                <p>不同主题，同样用心</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem">
+                <a href="posts.html?category=tech" style="display:block;padding:2rem;background:var(--bg-secondary);border-radius:16px;border:1px solid var(--border-color);transition:all .3s ease;text-decoration:none" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 30px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;color:white;font-size:1.5rem">
+                        ⚡
+                    </div>
+                    <h3 style="margin-bottom:0.5rem;color:var(--text-primary)">技术笔记</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;margin:0">AI、前端、后端、架构——技术路上的踩坑与总结。</p>
+                </a>
+                <a href="posts.html?category=life" style="display:block;padding:2rem;background:var(--bg-secondary);border-radius:16px;border:1px solid var(--border-color);transition:all .3s ease;text-decoration:none" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 30px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;color:white;font-size:1.5rem">
+                        🌿
+                    </div>
+                    <h3 style="margin-bottom:0.5rem;color:var(--text-primary)">生活随笔</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;margin:0">慢下来，感受生活。那些关于读书、旅行与思考的片段。</p>
+                </a>
+                <a href="resources.html" style="display:block;padding:2rem;background:var(--bg-secondary);border-radius:16px;border:1px solid var(--border-color);transition:all .3s ease;text-decoration:none" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 30px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+                    <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#d97706,#b45309);display:flex;align-items:center;justify-content:center;margin-bottom:1rem;color:white;font-size:1.5rem">
+                        📦
+                    </div>
+                    <h3 style="margin-bottom:0.5rem;color:var(--text-primary)">资源分享</h3>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;margin:0">精选开发工具、学习资料、设计资源，网盘一键下载。</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter / CTA -->
+    <section class="section">
+        <div class="container" style="text-align:center">
+            <h2 style="margin-bottom:1rem">为什么写这个博客？</h2>
+            <p style="max-width:500px;margin:0 auto 2rem;color:var(--text-secondary)">
+                写作是最好的思考方式。在这里，我把学到的、想到的、经历的，慢慢写下来。<br>
+                如果你也喜欢这些文字，欢迎常来坐坐。
+            </p>
+            <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+                <a href="about.html" class="btn btn-primary">了解更多</a>
+                <a href="posts.html?category=tech" class="btn btn-secondary">浏览技术文章</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="posts.html">文章</a>
+                <a href="resources.html">资源</a>
+                <a href="about.html">关于</a>
+            </div>
+            <p>© 2026 Wang's Notebook. Made with ❤️ and Cloudflare.</p>
+            <p style="font-size:0.8rem">Deployed on Cloudflare Pages · Powered by D1 & Workers</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Load featured posts
+        async function loadFeaturedPosts() {
+            try {
+                const { data } = await apiRequest('/posts?limit=4');
+                const posts = data.posts || [];
+                const container = document.getElementById('featured-posts');
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;color:var(--text-tertiary)">暂无文章</p>';
+                    return;
+                }
+
+                container.innerHTML = posts.map(post => `
+                    <a href="post.html?slug=${post.slug}" class="post-card">
+                        <div class="post-card-meta">
+                            <span class="post-category ${getCategoryClass(post.category)}">${getCategoryLabel(post.category)}</span>
+                            <span>${formatDate(post.created_at)}</span>
+                        </div>
+                        <h3 class="post-card-title">${escapeHtml(post.title)}</h3>
+                        <p class="post-card-excerpt">${escapeHtml(post.excerpt || '')}</p>
+                        <div class="post-card-footer">
+                            <span style="display:flex;gap:0.5rem">
+                                ${(post.tags || '').split(',').filter(t => t).slice(0, 2).map(t => `<span style="color:var(--text-tertiary);font-size:0.8rem">#${escapeHtml(t.trim())}</span>`).join('')}
+                            </span>
+                            <span>阅读 →</span>
+                        </div>
+                    </a>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load posts:', e);
+                document.getElementById('featured-posts').innerHTML = `
+                    <p style="text-align:center;color:var(--text-tertiary)">
+                        加载失败，请刷新重试<br>
+                        <span style="font-size:0.85rem">（本地预览时需配合 API 服务）</span>
+                    </p>
+                `;
+            }
+        }
+
+        loadFeaturedPosts();
+    </script>
+</body>
+</html>

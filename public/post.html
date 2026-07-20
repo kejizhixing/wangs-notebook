@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章 - Wang's Notebook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Wang's<span>.</span>Notebook</a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="posts.html" class="active">文章</a></li>
+                <li><a href="resources.html">资源</a></li>
+                <li><a href="about.html">关于</a></li>
+            </ul>
+            <div style="display:flex;align-items:center;gap:1rem">
+                <button class="theme-toggle" id="theme-toggle" aria-label="切换主题"></button>
+                <div class="nav-user" id="nav-user"></div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="container">
+        <header class="article-header" id="article-header">
+            <div class="loading"><div class="loading-spinner"></div></div>
+        </header>
+
+        <div class="article-content" id="article-content">
+        </div>
+
+        <!-- Comments Section -->
+        <section class="comments-section">
+            <h2 class="comments-title">评论 <span id="comment-count" style="color:var(--text-tertiary);font-size:1rem;font-weight:400"></span></h2>
+
+            <div class="comment-form" id="comment-form">
+                <textarea id="comment-input" placeholder="写下你的想法..."></textarea>
+                <div class="comment-form-footer">
+                    <span class="hint" id="comment-hint">登录后可以发表评论</span>
+                    <button class="btn btn-primary" id="comment-submit" onclick="submitComment()">发表评论</button>
+                </div>
+            </div>
+
+            <div class="comment-list" id="comment-list">
+                <div class="loading"><div class="loading-spinner"></div></div>
+            </div>
+        </section>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="posts.html">文章</a>
+                <a href="resources.html">资源</a>
+                <a href="about.html">关于</a>
+            </div>
+            <p>© 2026 Wang's Notebook. Made with ❤️ and Cloudflare.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentPostId = null;
+        let currentPostSlug = null;
+
+        // Get slug from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        currentPostSlug = urlParams.get('slug');
+
+        // Load post
+        async function loadPost() {
+            if (!currentPostSlug) {
+                document.getElementById('article-header').innerHTML = `
+                    <h1>文章不存在</h1>
+                    <p><a href="posts.html">← 返回文章列表</a></p>
+                `;
+                return;
+            }
+
+            try {
+                const { ok, data } = await apiRequest(`/posts/${currentPostSlug}`);
+
+                if (!ok || !data.post) {
+                    document.getElementById('article-header').innerHTML = `
+                        <h1>文章不存在</h1>
+                        <p><a href="posts.html">← 返回文章列表</a></p>
+                    `;
+                    return;
+                }
+
+                const post = data.post;
+                currentPostId = post.id;
+
+                // Update page title
+                document.title = `${post.title} - Wang's Notebook`;
+
+                // Render header
+                document.getElementById('article-header').innerHTML = `
+                    <span class="post-category ${getCategoryClass(post.category)}">${getCategoryLabel(post.category)}</span>
+                    <h1 class="article-title">${escapeHtml(post.title)}</h1>
+                    <div class="article-meta">
+                        <span>${formatDate(post.created_at)}</span>
+                        <span>·</span>
+                        <span>${(post.tags || '').split(',').filter(t => t).map(t => `#${escapeHtml(t.trim())}`).join(' ')}</span>
+                    </div>
+                `;
+
+                // Render content
+                document.getElementById('article-content').innerHTML = renderMarkdown(post.content);
+
+                // Load comments
+                loadComments();
+
+            } catch (e) {
+                console.error('Failed to load post:', e);
+                document.getElementById('article-header').innerHTML = `
+                    <h1>加载失败</h1>
+                    <p style="color:var(--text-tertiary)">请刷新重试，或检查 API 服务是否正常运行。</p>
+                    <p><a href="posts.html">← 返回文章列表</a></p>
+                `;
+            }
+        }
+
+        // Load comments
+        async function loadComments() {
+            if (!currentPostId) return;
+
+            const listContainer = document.getElementById('comment-list');
+            listContainer.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            // Update comment form based on auth state
+            const submitBtn = document.getElementById('comment-submit');
+            const hint = document.getElementById('comment-hint');
+            const input = document.getElementById('comment-input');
+
+            if (isLoggedIn()) {
+                const user = getUser();
+                hint.textContent = `以 ${user.username} 的身份评论`;
+                input.disabled = false;
+                submitBtn.disabled = false;
+            } else {
+                hint.innerHTML = '请先 <a href="login.html">登录</a> 后发表评论';
+                input.disabled = true;
+                input.placeholder = '登录后可以发表评论...';
+                submitBtn.disabled = true;
+            }
+
+            try {
+                const { data } = await apiRequest(`/comments?post_id=${currentPostId}`);
+                const comments = data.comments || [];
+
+                document.getElementById('comment-count').textContent = `(${comments.length})`;
+
+                if (comments.length === 0) {
+                    listContainer.innerHTML = `
+                        <div style="text-align:center;padding:2rem;color:var(--text-tertiary)">
+                            <p>暂无评论，来抢沙发吧~</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                listContainer.innerHTML = comments.map(comment => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-avatar">${comment.username.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div class="comment-author">${escapeHtml(comment.username)}</div>
+                                <div class="comment-time">${formatDate(comment.created_at)}</div>
+                            </div>
+                        </div>
+                        <div class="comment-content">${escapeHtml(comment.content).replace(/\n/g, '<br>')}</div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                console.error('Failed to load comments:', e);
+                listContainer.innerHTML = `
+                    <p style="text-align:center;color:var(--text-tertiary)">评论加载失败</p>
+                `;
+            }
+        }
+
+        // Submit comment
+        async function submitComment() {
+            if (!isLoggedIn()) {
+                showToast('请先登录', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const input = document.getElementById('comment-input');
+            const content = input.value.trim();
+
+            if (!content) {
+                showToast('评论内容不能为空', 'error');
+                return;
+            }
+
+            if (content.length > 1000) {
+                showToast('评论不能超过 1000 字', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('comment-submit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '发送中...';
+
+            try {
+                const { ok, data } = await apiRequest('/comments', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        post_id: currentPostId,
+                        content: content
+                    })
+                });
+
+                if (ok) {
+                    showToast('评论发布成功', 'success');
+                    input.value = '';
+                    loadComments();
+                } else {
+                    showToast(data.error || '评论发布失败', 'error');
+                }
+            } catch (e) {
+                console.error('Failed to submit comment:', e);
+                showToast('评论发布失败，请重试', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '发表评论';
+            }
+        }
+
+        // Initialize
+        loadPost();
+    </script>
+</body>
+</html>

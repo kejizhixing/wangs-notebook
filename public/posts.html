@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章 - Wang's Notebook</title>
+    <meta name="description" content="技术文章与生活随笔">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">Wang's<span>.</span>Notebook</a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="posts.html" class="active">文章</a></li>
+                <li><a href="resources.html">资源</a></li>
+                <li><a href="about.html">关于</a></li>
+            </ul>
+            <div style="display:flex;align-items:center;gap:1rem">
+                <button class="theme-toggle" id="theme-toggle" aria-label="切换主题"></button>
+                <div class="nav-user" id="nav-user"></div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="菜单">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section style="padding-top:calc(var(--nav-height) + 3rem);padding-bottom:2rem;text-align:center">
+        <div class="container">
+            <h1 style="font-size:clamp(2rem,5vw,3rem);margin-bottom:0.5rem">所有文章</h1>
+            <p style="color:var(--text-tertiary)">技术探索 · 生活感悟 · 资源分享</p>
+        </div>
+    </section>
+
+    <!-- Category Tabs -->
+    <section style="padding-bottom:2rem">
+        <div class="container">
+            <div class="category-tabs" id="category-tabs">
+                <button class="category-tab active" data-category="">全部</button>
+                <button class="category-tab" data-category="tech">技术</button>
+                <button class="category-tab" data-category="life">生活</button>
+                <button class="category-tab" data-category="resource">资源</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Posts List -->
+    <section class="section-sm" style="padding-top:0">
+        <div class="container">
+            <div class="posts-grid" id="posts-list">
+                <div class="loading"><div class="loading-spinner"></div></div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="posts.html">文章</a>
+                <a href="resources.html">资源</a>
+                <a href="about.html">关于</a>
+            </div>
+            <p>© 2026 Wang's Notebook. Made with ❤️ and Cloudflare.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentCategory = '';
+        const postsPerPage = 8;
+
+        // Get category from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlCategory = urlParams.get('category');
+        if (urlCategory) {
+            currentCategory = urlCategory;
+        }
+
+        // Update active tab
+        function updateActiveTab() {
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === currentCategory);
+            });
+        }
+
+        // Category tab click
+        document.getElementById('category-tabs').addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-tab')) {
+                currentCategory = e.target.dataset.category;
+                currentPage = 1;
+                updateActiveTab();
+                loadPosts();
+            }
+        });
+
+        // Load posts
+        async function loadPosts() {
+            const container = document.getElementById('posts-list');
+            container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
+
+            try {
+                let url = `/posts?page=${currentPage}&limit=${postsPerPage}`;
+                if (currentCategory) {
+                    url += `&category=${currentCategory}`;
+                }
+
+                const { data } = await apiRequest(url);
+                const posts = data.posts || [];
+                const pagination = data.pagination || {};
+
+                if (posts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:3rem;color:var(--text-tertiary)">
+                            <div style="font-size:3rem;margin-bottom:1rem">📝</div>
+                            <p>暂无文章</p>
+                        </div>
+                    `;
+                    document.getElementById('pagination').innerHTML = '';
+                    return;
+                }
+
+                container.innerHTML = posts.map(post => `
+                    <a href="post.html?slug=${post.slug}" class="post-card">
+                        <div class="post-card-meta">
+                            <span class="post-category ${getCategoryClass(post.category)}">${getCategoryLabel(post.category)}</span>
+                            <span>${formatDate(post.created_at)}</span>
+                        </div>
+                        <h3 class="post-card-title">${escapeHtml(post.title)}</h3>
+                        <p class="post-card-excerpt">${escapeHtml(post.excerpt || '')}</p>
+                        <div class="post-card-footer">
+                            <span style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                                ${(post.tags || '').split(',').filter(t => t).slice(0, 3).map(t => `<span style="color:var(--text-tertiary);font-size:0.8rem">#${escapeHtml(t.trim())}</span>`).join('')}
+                            </span>
+                            <span>阅读全文 →</span>
+                        </div>
+                    </a>
+                `).join('');
+
+                renderPagination(pagination);
+            } catch (e) {
+                console.error('Failed to load posts:', e);
+                container.innerHTML = `
+                    <div style="text-align:center;padding:3rem;color:var(--text-tertiary)">
+                        <p>加载失败，请刷新重试</p>
+                        <p style="font-size:0.85rem;margin-top:0.5rem">（本地预览时需配合 API 服务）</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render pagination
+        function renderPagination(pagination) {
+            const { page, totalPages } = pagination;
+            const container = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // Prev button
+            html += `<button ${page <= 1 ? 'disabled' : ''} onclick="goToPage(${page - 1})">上一页</button>`;
+
+            // Page numbers
+            const maxVisible = 5;
+            let start = Math.max(1, page - Math.floor(maxVisible / 2));
+            let end = Math.min(totalPages, start + maxVisible - 1);
+            start = Math.max(1, end - maxVisible + 1);
+
+            if (start > 1) {
+                html += `<button onclick="goToPage(1)">1</button>`;
+                if (start > 2) html += `<span style="padding:0.5rem;color:var(--text-tertiary)">...</span>`;
+            }
+
+            for (let i = start; i <= end; i++) {
+                html += `<button class="${i === page ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span style="padding:0.5rem;color:var(--text-tertiary)">...</span>`;
+                html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // Next button
+            html += `<button ${page >= totalPages ? 'disabled' : ''} onclick="goToPage(${page + 1})">下一页</button>`;
+
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        updateActiveTab();
+        loadPosts();
+    </script>
+</body>
+</html>

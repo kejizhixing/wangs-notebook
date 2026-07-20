@@ -1,0 +1,23 @@
+# Wang's Notebook - Cloudflare Pages Configuration
+
+name = "wangs-notebook"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Pages project
+pages_build_output_dir = "public"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "wangs-notebook-db"
+database_id = "your-database-id-here"
+
+# Environment variables (set in Cloudflare dashboard or via CLI)
+# JWT_SECRET - used for signing JWT tokens
+# Set with: npx wrangler pages secret put JWT_SECRET
+
+[vars]
+SITE_NAME = "Wang's Notebook"
+SITE_DESCRIPTION = "技术与生活的思考笔记"
+JWT_EXPIRES_IN = "7d"
