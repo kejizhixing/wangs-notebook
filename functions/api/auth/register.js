@@ -1,9 +1,9 @@
 // POST /api/auth/register
 // Register a new user
 
-import { jsonResponse, errorResponse, handleOptions, validateEmail, validateUsername } from '../../_utils/response.js';
-import { hashPasswordWithSalt } from '../../_utils/password.js';
-import { signJWT } from '../../_utils/jwt.js';
+import { jsonResponse, errorResponse, handleOptions, validateEmail, validateUsername } from '../../utils/response.js';
+import { hashPasswordWithSalt } from '../../utils/password.js';
+import { signJWT } from '../../utils/jwt.js';
 
 export async function onRequest(context) {
     const { request, env } = context;

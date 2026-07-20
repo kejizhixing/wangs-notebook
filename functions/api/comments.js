@@ -1,8 +1,8 @@
 // GET /api/comments?post_id=X  - list comments for a post
 // POST /api/comments            - create a comment (requires auth)
 
-import { jsonResponse, errorResponse, handleOptions } from '../../_utils/response.js';
-import { verifyJWT, getTokenFromRequest } from '../../_utils/jwt.js';
+import { jsonResponse, errorResponse, handleOptions } from '../../utils/response.js';
+import { verifyJWT, getTokenFromRequest } from '../../utils/jwt.js';
 
 export async function onRequest(context) {
     const { request, env } = context;

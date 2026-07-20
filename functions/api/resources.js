@@ -1,7 +1,7 @@
 // GET /api/resources
 // List all shared resources
 
-import { jsonResponse, errorResponse, handleOptions } from '../../_utils/response.js';
+import { jsonResponse, errorResponse, handleOptions } from '../../utils/response.js';
 
 export async function onRequest(context) {
     const { request, env } = context;

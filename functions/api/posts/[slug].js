@@ -1,7 +1,7 @@
 // GET /api/posts/:slug
 // Get single post by slug
 
-import { jsonResponse, errorResponse, handleOptions } from '../../../_utils/response.js';
+import { jsonResponse, errorResponse, handleOptions } from '../../../utils/response.js';
 
 export async function onRequest(context) {
     const { request, env, params } = context;
