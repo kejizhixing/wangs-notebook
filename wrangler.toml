@@ -1,5 +1,6 @@
 # Wang's Notebook - Cloudflare Pages Configuration
 
+account_id = "ead6e7488f9f974f1e0b60cbfe16e562"
 name = "wangs-notebook"
 compatibility_date = "2026-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -11,7 +12,7 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "wangs-notebook-db"
-database_id = "your-database-id-here"
+database_id = "89cb6bcd-fa73-4d51-91bd-54de4877de30"
 
 # Environment variables (set in Cloudflare dashboard or via CLI)
 # JWT_SECRET - used for signing JWT tokens
